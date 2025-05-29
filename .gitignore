@@ -1,3 +1,17 @@
 bin
 obj
 *.sln
+
+# Python 관련
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 가상환경
+venv/
+.env
+.env.*
+
+# Jupyter/VS Code
+.ipynb_checkpoints/
+.vscode/

@@ -1,0 +1,37 @@
+import gradio as gr
+from gpt_handler import call_gpt
+from prompt_templates import create_skills_prompt
+from resume_state import update_resume
+
+def create_skills_tab(state):
+    with gr.Tab("기술 스택"):
+        with gr.Column():
+            input_text = gr.Textbox(
+                label="기술 스택",
+                lines=4,
+                placeholder="예: Python, SQL, AWS, Docker, Git 등을 활용한 프로젝트 경험 보유"
+            )
+            output_text = gr.Textbox(label="영문 이력서 문장", lines=3)
+            convert_btn = gr.Button("변환")
+
+            def handle_skills(role, text, state):
+                company = state.get("기업")
+                applicant_type = state.get("지원유형")
+
+                prompt = create_skills_prompt(
+                    job=role,
+                    skills=text,
+                    company=company,
+                    applicant_type=applicant_type
+                )
+                result = call_gpt(prompt)
+                state = update_resume(state, "기술 스택", result)
+                return result, state
+
+            convert_btn.click(
+                fn=handle_skills,
+                inputs=[gr.Text(label="직무", visible=False), input_text, state],
+                outputs=[output_text, state],
+                show_progress=True
+            )
+
