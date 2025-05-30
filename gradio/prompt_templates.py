@@ -172,11 +172,11 @@ def create_preview_prompt(state: dict) -> str:
     return "전체 이력서 내용을 아래 항목에 맞게 요약 출력하세요. 항목마다 줄바꿈 해주세요:\n- Objective\n- Education\n- Experience\n- Projects\n- Skills\n- Awards"
 
 
-def create_intro_prompt(state: dict, intro: str) -> str:
-    job = state.get("직무", "")
-    company = state.get("기업", "")
-    applicant_type = state.get("지원유형", "")
-    style = get_style_guidance(company, applicant_type)
+def create_intro_prompt(job,intro,company, applicant_type) -> str:
+    #job = state.get("직무", "")
+    #company = state.get("기업", "")
+    #applicant_type = state.get("지원유형", "")
+    #style = get_style_guidance(company, applicant_type)
     return f"""
     당신은 영어 이력서의 Objective (자기소개) 문장을 작성하는 AI 어시스턴트입니다.
 
@@ -193,5 +193,6 @@ def create_intro_prompt(state: dict, intro: str) -> str:
     - 능동형 표현
     - 태도, 가치관, 강점이 드러나도록
     - 커리어 목표 또는 성장 의지 포함
-    - {style}
     """
+    # parameter 등 수정 완료 후 다시 위에 포함시켜줘야 됨
+    # - {style}
