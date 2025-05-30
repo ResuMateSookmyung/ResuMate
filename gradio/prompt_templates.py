@@ -50,6 +50,89 @@ def get_style_guidance(company: str = "", applicant_type: str = "") -> str:
 
     return result.strip()
 
+# 한줄소개 탭
+def create_intro_prompt(job, intro, company, applicant_type) -> str:
+    #job = state.get("직무", "")
+    #company = state.get("기업", "")
+    #applicant_type = state.get("지원유형", "")
+    #style = get_style_guidance(company, applicant_type)
+    return f"""
+    당신은 영어 이력서의 Objective (자기소개) 문장을 작성하는 AI 어시스턴트입니다.
+
+    [직군]: {job}  
+    [지원 회사]: {company}  
+    [지원 유형]: {applicant_type}
+
+    아래 사용자의 자기소개 내용을 바탕으로, 이력서 상단에 들어갈 간결한 영어 자기소개 문장을 작성해주세요:
+
+    "{intro}"
+
+    작성 지침:
+    - 1문장
+    - 능동형 표현
+    - 태도, 가치관, 강점이 드러나도록
+    - 커리어 목표 또는 성장 의지 포함
+    """
+    # parameter 등 수정 완료 후 다시 위에 포함시켜줘야 됨
+    # - {style}
+
+# 학력 탭
+def create_education_prompt(state: dict, education: str) -> str:
+    job = state.get("직무", "")
+    return f"""
+    아래 학력 정보를 기반으로 영문 이력서 학력 항목을 작성해줘.
+
+    학력: {education}
+    직군: {job} 
+    아래의 학력 정보를 영어 이력서 문장으로 만들어주세요.  
+    - 간결하게 1줄  
+    - 학위, 전공, 학교, 졸업 연도 포함  
+    - 필요시 GPA도 포함
+
+    [입력 예]: 서울대학교, 컴퓨터공학과, 2023년 졸업, GPA 4.0
+
+    [출력 예]: B.S. in Computer Science, Seoul National University, GPA 4.0, Feb 2023
+    """
+
+# 기술 스택 
+def create_skills_prompt(state: dict, skills: str) -> str:
+    job = state.get("직무", "")
+    style = get_style_guidance(state.get("기업", ""), state.get("지원유형", ""))
+    return f"""
+    당신은 영문 이력서의 스킬 항목을 정리하는 전문가입니다.
+
+    직군: {job}
+    입력 스킬: "{skills}"
+
+    요청:
+    - 관련 기술 분류: Programming, Tools, Languages 등
+    - 쉼표 또는 리스트로 정리
+    - {style}
+
+    예시:
+    입력: Python, SQL, Tableau, Git, Linux  
+    출력:
+    • Programming Languages: Python, SQL  
+    • Tools: Tableau, Git, Linux
+    """
+
+# 프로젝트 탭
+def create_projects_prompt(state: dict, project: str) -> str:
+    job = state.get("직무", "")
+    style = get_style_guidance(state.get("기업", ""), state.get("지원유형", ""))
+    return f"""
+    사용자의 직군은 "{job}"입니다.  
+    아래는 프로젝트 경험 설명입니다.
+    {project}
+    영어 이력서의 프로젝트 항목으로 적절하게 요약해주세요.  
+    - 프로젝트 목표, 역할, 기술, 성과를 포함  
+    - 한두 줄 불렛 포인트
+
+    [입력 예]: 팀 프로젝트로 앱 만들었고, 로그인/회원가입 기능 담당했어요. Firebase 썼고 500명 이상 사용했어요.
+
+    [출력 예]: Built user authentication system using Firebase in a team-based mobile app project, achieving over 500 active users.
+    """
+
 def create_job_prompt(state: dict, job_description: str) -> str:
     job = state.get("직무", "")
     company = state.get("기업", "")
@@ -75,24 +158,6 @@ def create_job_prompt(state: dict, job_description: str) -> str:
     예시 출력: Developed a real-time chat feature using React at Amazon, increasing daily active users by 15%.
     """
 
-
-def create_education_prompt(state: dict, education: str) -> str:
-    job = state.get("직무", "")
-    return f"""
-    아래 학력 정보를 기반으로 영문 이력서 학력 항목을 작성해줘.
-
-    학력: {education}
-    직군: {job} 
-    아래의 학력 정보를 영어 이력서 문장으로 만들어주세요.  
-    - 간결하게 1줄  
-    - 학위, 전공, 학교, 졸업 연도 포함  
-    - 필요시 GPA나 수상 내역도 포함
-
-    [입력 예]: 서울대학교, 컴퓨터공학과, 2023년 졸업, GPA 4.0
-
-    [출력 예]: B.S. in Computer Science, Seoul National University, GPA 4.0, Feb 2023
-    """
-
 def create_experience_prompt(state: dict, experience: str) -> str:
     job = state.get("직무", "")
     company = state.get("기업", "")
@@ -115,44 +180,6 @@ def create_experience_prompt(state: dict, experience: str) -> str:
     출력: Refactored order system using Spring Boot at Amazon, reducing response time by 30%.
     """
 
-def create_projects_prompt(state: dict, project: str) -> str:
-    job = state.get("직무", "")
-    style = get_style_guidance(state.get("기업", ""), state.get("지원유형", ""))
-    return f"""
-    사용자의 직군은 "{job}"입니다.  
-    아래는 프로젝트 경험 설명입니다.
-    {project}
-    영어 이력서의 프로젝트 항목으로 적절하게 요약해주세요.  
-    - 프로젝트 목표, 역할, 기술, 성과를 포함  
-    - 한두 줄 불렛 포인트
-
-    [입력 예]: 팀 프로젝트로 앱 만들었고, 로그인/회원가입 기능 담당했어요. Firebase 썼고 500명 이상 사용했어요.
-
-    [출력 예]: Built user authentication system using Firebase in a team-based mobile app project, achieving over 500 active users.
-
-    """
-
-def create_skills_prompt(state: dict, skills: str) -> str:
-    job = state.get("직무", "")
-    style = get_style_guidance(state.get("기업", ""), state.get("지원유형", ""))
-    return f"""
-    당신은 영문 이력서의 스킬 항목을 정리하는 전문가입니다.
-
-    직군: {job}
-    입력 스킬: "{skills}"
-
-    요청:
-    - 관련 기술 분류: Programming, Tools, Languages 등
-    - 쉼표 또는 리스트로 정리
-    - {style}
-
-    예시:
-    입력: Python, SQL, Tableau, Git, Linux  
-    출력:
-    • Programming Languages: Python, SQL  
-    • Tools: Tableau, Git, Linux
-    """
-
 def create_awards_prompt(state: dict, awards: str) -> str:
     job = state.get("직무", "")
     return f"""
@@ -170,29 +197,3 @@ def create_awards_prompt(state: dict, awards: str) -> str:
 
 def create_preview_prompt(state: dict) -> str:
     return "전체 이력서 내용을 아래 항목에 맞게 요약 출력하세요. 항목마다 줄바꿈 해주세요:\n- Objective\n- Education\n- Experience\n- Projects\n- Skills\n- Awards"
-
-
-def create_intro_prompt(job,intro,company, applicant_type) -> str:
-    #job = state.get("직무", "")
-    #company = state.get("기업", "")
-    #applicant_type = state.get("지원유형", "")
-    #style = get_style_guidance(company, applicant_type)
-    return f"""
-    당신은 영어 이력서의 Objective (자기소개) 문장을 작성하는 AI 어시스턴트입니다.
-
-    [직군]: {job}  
-    [지원 회사]: {company}  
-    [지원 유형]: {applicant_type}
-
-    아래 사용자의 자기소개 내용을 바탕으로, 이력서 상단에 들어갈 간결한 영어 자기소개 문장을 작성해주세요:
-
-    "{intro}"
-
-    작성 지침:
-    - 1문장
-    - 능동형 표현
-    - 태도, 가치관, 강점이 드러나도록
-    - 커리어 목표 또는 성장 의지 포함
-    """
-    # parameter 등 수정 완료 후 다시 위에 포함시켜줘야 됨
-    # - {style}

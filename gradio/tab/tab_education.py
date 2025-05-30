@@ -14,15 +14,13 @@ def create_education_tab(state):
             output_text = gr.Textbox(label="영문 이력서 문장", lines=3)
             convert_btn = gr.Button("변환")
 
-            def handle_education(role, text, state):
-                company = state.get("기업")
-                applicant_type = state.get("지원유형")
+            def handle_education(text, state):
+                #company = state.get("기업")
+                #applicant_type = state.get("지원유형")
 
                 prompt = create_education_prompt(
-                    job=role,
-                    education=text,
-                    company=company,
-                    applicant_type=applicant_type
+                    state=state,
+                    education=text
                 )
                 result = call_gpt(prompt)
                 state = update_resume(state, "학력", result)
@@ -30,7 +28,7 @@ def create_education_tab(state):
 
             convert_btn.click(
                 fn=handle_education,
-                inputs=[gr.Text(label="직무", visible=False), input_text, state],
+                inputs=[input_text, state],
                 outputs=[output_text, state],
                 show_progress=True
             )
