@@ -12,8 +12,8 @@ with gr.Blocks() as demo:
     resume_state = gr.State({})  # 🔹 모든 탭이 공유하는 상태 객체
 
     with gr.Tabs():
-        create_intro_tab(resume_state)
         create_job_tab(resume_state)       # 🔹 상태 전달
+        create_intro_tab(resume_state)
         create_education_tab(resume_state) # 🔹 다른 탭에도 동일하게 전달
         create_skills_tab(resume_state)
         create_projects_tab(resume_state)
