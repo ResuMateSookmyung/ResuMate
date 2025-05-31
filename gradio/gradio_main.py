@@ -22,4 +22,5 @@ with gr.Blocks() as demo:
         create_preview_tab(resume_state)
 
 if __name__ == "__main__":
+    # demo.launch(share=True)
     demo.launch()

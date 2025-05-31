@@ -12,6 +12,12 @@ def create_education_tab(state):
                 placeholder="예: 서울대학교 컴퓨터공학과 졸업, GPA 4.1, 2023년"
             )
             output_text = gr.Textbox(label="영문 이력서 문장", lines=3)
+            gr.Textbox(
+                value="ⓘ 생성된 문장은 사용자 입력을 기반으로 하며, 실제 사실과 다를 수 있으며 입력한 정보는 저장되지 않습니다.",
+                label="",
+                lines=1,
+                interactive=False
+            )
             convert_btn = gr.Button("변환")
 
             def handle_education(text, state):

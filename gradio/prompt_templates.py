@@ -18,6 +18,9 @@ def get_system_prompt() -> str:
     - 특정 집단이나 개인을 일반화하는 표현은 사용하지 마세요.
     - 성별 고정 관념이 반영된 표현은 사용하지 마세요.
     - 성적 지향이나 성 정체성과 관련된 편견이 드러나는 표현은 사용하지 마세요.
+    - 사용자가 명시하지 않은 수치나 사실을 임의로 만들어내지 마세요.
+    - 수치나 성과가 주어지지 않았다면, 수치 없이 일반적인 표현만 사용하세요.
+    
     """
 
 def get_style_guidance(company: str = "", applicant_type: str = "") -> str:
@@ -31,10 +34,32 @@ def get_style_guidance(company: str = "", applicant_type: str = "") -> str:
         - 문장은 간결하고 명확하게, 불필요한 내용을 줄이고 핵심에 집중하여 작성해야 합니다.
         """,
 
-        "Microsoft": "Microsoft는 다양성과 고객 중심 표현을 중요시합니다.",
-        "Meta": "Meta는 임팩트, 빠른 반복, 수치 중심 표현을 선호합니다.",
-        "OpenAI": "OpenAI는 창의적 문제 해결, 협업, 그리고 적응력을 중시하는 표현을 선호합니다.",
-        "Apple": "Apple은 정제된 표현과 협업 중심 문장을 선호합니다.",
+        "Microsoft": """
+        - Microsoft는 다양성과 고객 중심 표현을 중요시합니다.
+        - 모든 단계에서 자신을 정직하게 표현하여야 합니다.
+        - 책임성, 포용성, 신뢰성, 안정성, 공정성, 투명성, 개인정보 보호의 원칙을 따르는 태도를 보여야 합니다.
+        """,
+
+        "Meta": """
+        - Meta는 임팩트, 빠른 반복, 수치 중심 표현을 선호합니다.
+        - 모든 항목을 STAR 기법을 이용하여 작성하여야 합니다.
+        - 간결하게 작성하여야 합니다.
+        - 명확한 가치 제안을 담아야 합니다.
+        - 지원하고자 하는 해당 직무에 맞는 특정 강점을 항목별로 강조하여야 합니다.
+        """,
+
+        "OpenAI": """
+        - OpenAI는 창의적 문제 해결, 협업, 그리고 적응력을 중시하는 표현을 선호합니다.
+        - 새로운 분야에 빠르게 적응하고 실질적인 효과를 낼 수 있음을 보여주어야 합니다.
+        - 협업 능력, 효과적인 커뮤니케이션, 피드백에 대한 개방성, 사명과 가치에 대한 공감을 보여주어야 합니다.
+        """,
+
+        "Apple": """
+        - Apple은 정제된 표현과 협업 중심 문장을 선호합니다.
+        - 해당 역할에 필요한 관련 자격과 경력으로 내용을 채워야 합니다다.
+        - 직무에 적합한 기술과 올바른 마인드를 갖추고 있음을 보여주어야 합니다다.
+        - 다음과 같은 회사의 가치와 일치함을 나타내어야 합니다: 접근성, 교육, 환경, 포용과 다양성, 개인정보 보호, 인종적 평등과 정의, 공급망 책임.
+        """,
     }
 
     type_hint = {
@@ -51,11 +76,11 @@ def get_style_guidance(company: str = "", applicant_type: str = "") -> str:
     return result.strip()
 
 # 한줄소개 탭
-def create_intro_prompt(job, intro, company, applicant_type) -> str:
-    #job = state.get("직무", "")
-    #company = state.get("기업", "")
-    #applicant_type = state.get("지원유형", "")
-    #style = get_style_guidance(company, applicant_type)
+def create_intro_prompt(state: dict, intro: str) -> str:
+    job = state.get("직무", "")
+    company = state.get("기업", "")
+    applicant_type = state.get("지원유형", "")
+    style = get_style_guidance(company, applicant_type)
     return f"""
     당신은 영어 이력서의 Objective (자기소개) 문장을 작성하는 AI 어시스턴트입니다.
 
@@ -69,12 +94,12 @@ def create_intro_prompt(job, intro, company, applicant_type) -> str:
 
     작성 지침:
     - 1문장
+    - 영어로 작성
     - 능동형 표현
     - 태도, 가치관, 강점이 드러나도록
     - 커리어 목표 또는 성장 의지 포함
+    - {style}
     """
-    # parameter 등 수정 완료 후 다시 위에 포함시켜줘야 됨
-    # - {style}
 
 # 학력 탭
 def create_education_prompt(state: dict, education: str) -> str:
@@ -88,13 +113,14 @@ def create_education_prompt(state: dict, education: str) -> str:
     - 간결하게 1줄  
     - 학위, 전공, 학교, 졸업 연도 포함  
     - 필요시 GPA도 포함
+    - 입력 내용만을 기준으로 작성
 
     [입력 예]: 서울대학교, 컴퓨터공학과, 2023년 졸업, GPA 4.0
 
     [출력 예]: B.S. in Computer Science, Seoul National University, GPA 4.0, Feb 2023
     """
 
-# 기술 스택 
+# 기술 스택 탭
 def create_skills_prompt(state: dict, skills: str) -> str:
     job = state.get("직무", "")
     style = get_style_guidance(state.get("기업", ""), state.get("지원유형", ""))
@@ -107,6 +133,7 @@ def create_skills_prompt(state: dict, skills: str) -> str:
     요청:
     - 관련 기술 분류: Programming, Tools, Languages 등
     - 쉼표 또는 리스트로 정리
+    - 입력 내용만을 기준으로 작성 (팁 제안x)
     - {style}
 
     예시:
@@ -125,44 +152,27 @@ def create_projects_prompt(state: dict, project: str) -> str:
     아래는 프로젝트 경험 설명입니다.
     {project}
     영어 이력서의 프로젝트 항목으로 적절하게 요약해주세요.  
+
+    요청:
     - 프로젝트 목표, 역할, 기술, 성과를 포함  
     - 한두 줄 불렛 포인트
-
-    [입력 예]: 팀 프로젝트로 앱 만들었고, 로그인/회원가입 기능 담당했어요. Firebase 썼고 500명 이상 사용했어요.
-
-    [출력 예]: Built user authentication system using Firebase in a team-based mobile app project, achieving over 500 active users.
-    """
-
-def create_job_prompt(state: dict, job_description: str) -> str:
-    job = state.get("직무", "")
-    company = state.get("기업", "")
-    applicant_type = state.get("지원유형", "")
-    style = get_style_guidance(company, applicant_type)
-    return f"""
-    아래 경력 정보를 기반으로 영문 이력서 경력 항목을 작성해줘.
-
-    지원 회사: {company}
-    지원 유형: {applicant_type}
-    직군: {job}
-
-    아래는 사용자의 경험 설명입니다. 이를 영어 이력서의 불렛 포인트 문장으로 바꿔주세요:
-    - 행동 동사로 시작
-    - 성과 중심 (수치가 있다면 포함)
-    - 한두 문장으로 요약
-    - 도구/기술 언급 포함
+    - 입력 내용만을 기준으로 작성
+    - 입력 내용에 수치가 없는 경우, 임의로 수치를 작성하지 말고 있는 그대로 내용을 작성해주세요
+    - 불확실한 부분은 구체화하지 말고 사용자 입력에 기반한 사실만 반영하세요.
+    - 먼저, 사용자의 현재 입력을 기반으로 작성 가능한 bullet point 문장을 가장 먼저 보여주세요.
+    - 출력은 다음과 같은 두 부분으로 구성해주세요:
+        1. bullet point 문장을 가장 먼저 출력 (영어로 작성)
+        2. 아래에 `---` 구분선을 넣고, 입력이 부족한 경우에 보완할 수 있는 정보와 팁을 제안 (한국어로 작성)
+    - 한국어로된 입력 예시 문장이나 팁을 보여줘도 좋습니다.
     - {style}
-
-    입력: {job_description}
-
-    예시 입력: 아마존에서 프론트엔드 개발자로 채팅 기능을 만들었고 React를 썼어요. DAU가 늘었어요.
-    예시 출력: Developed a real-time chat feature using React at Amazon, increasing daily active users by 15%.
     """
 
+# 경력 탭
 def create_experience_prompt(state: dict, experience: str) -> str:
     job = state.get("직무", "")
-    company = state.get("기업", "")
-    applicant_type = state.get("지원유형", "")
-    style = get_style_guidance(company, applicant_type)
+    # company = state.get("기업", "")
+    # applicant_type = state.get("지원유형", "")
+    style = get_style_guidance(state.get("기업", ""), state.get("지원유형", ""))
     return f"""
     당신은 영문 이력서 경력 항목을 작성하는 어시스턴트입니다.
 
@@ -173,13 +183,16 @@ def create_experience_prompt(state: dict, experience: str) -> str:
     - 영어 불렛 포인트 형식
     - 행동 동사로 시작
     - 수치 중심으로 성과 강조
+    - 입력 내용에 수치가 없는 경우, 임의로 수치를 작성하지 말고 있는 그대로 내용을 작성해주세요
+    - 불확실한 부분은 구체화하지 말고 사용자 입력에 기반한 사실만 반영하세요.
+    - 출력은 다음과 같은 두 부분으로 구성해주세요:
+        1. bullet point 문장을 가장 먼저 출력 (영어로 작성)
+        2. 아래에 `---` 구분선을 넣고, 입력이 부족한 경우에 보완할 수 있는 정보와 팁을 제안 (한국어로 작성)
+    - 한국어로된 입력 예시 문장이나 팁을 보여줘도 좋습니다.
     - {style}
-
-    예시:
-    입력: 아마존에서 주문 시스템 개선, SpringBoot로 리팩터링하고 응답속도 개선
-    출력: Refactored order system using Spring Boot at Amazon, reducing response time by 30%.
     """
 
+# 자격증 및 수상 탭
 def create_awards_prompt(state: dict, awards: str) -> str:
     job = state.get("직무", "")
     return f"""
@@ -187,7 +200,10 @@ def create_awards_prompt(state: dict, awards: str) -> str:
 
     사용자의 직군은 {job}입니다.
     아래는 자격증 또는 수상 내역입니다.  
-    이를 영어 이력서 항목에 넣기 적절한 방식으로 표현해주세요.  
+    {awards}
+    이를 영어 이력서 항목에 넣기 적절한 방식으로 표현해주세요. 
+    영어 불렛 포인트 형식 외의 텍스트 출력하지 마세요.
+    형식:
     - 이름, 발급 기관, 연도 포함
 
     [입력 예]: 정보처리기사, 2022년, 한국산업인력공단
@@ -196,4 +212,19 @@ def create_awards_prompt(state: dict, awards: str) -> str:
     """
 
 def create_preview_prompt(state: dict) -> str:
-    return "전체 이력서 내용을 아래 항목에 맞게 요약 출력하세요. 항목마다 줄바꿈 해주세요:\n- Objective\n- Education\n- Experience\n- Projects\n- Skills\n- Awards"
+    return """전체 이력서 내용을 아래 항목에 맞게 요약 출력하세요.
+    이 이력서를 아래 항목 기준에 맞춰 깔끔하게 요약 정리해 주세요. 각 항목은 제목을 붙이고 줄바꿈해서 구분하세요:
+
+    - Objective
+    - Education
+    - Experience
+    - Projects
+    - Skills
+    - Awards
+
+    요약 시 유의사항:
+    - 각 항목은 핵심 문장 위주로 간결하게 정리
+    - 영문으로 작성
+    - 원문 내용 기반으로만 작성 (사실을 임의로 생성하지 마세요)
+    - 줄바꿈과 마크다운 스타일 사용 가능 (예: `•`, `-`, 항목별 줄바꿈 등)
+    """

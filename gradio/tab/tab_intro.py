@@ -12,17 +12,21 @@ def create_intro_tab(state):
                 placeholder="예: 새로운 기술을 빠르게 습득하고 문제 해결에 열정이 있습니다."
             )
             output_text = gr.Textbox(label="영문 한줄소개 문장", lines=3)
+            gr.Textbox(
+                value="ⓘ 생성된 문장은 사용자 입력을 기반으로 하며, 실제 사실과 다를 수 있으며 입력한 정보는 저장되지 않습니다.",
+                label="",
+                lines=1,
+                interactive=False
+            )
             convert_btn = gr.Button("변환")
 
-            def handle_intro(role, text, state):
-                company = state.get("기업")
-                applicant_type = state.get("지원유형")
+            def handle_intro(text, state):
+                #company = state.get("기업")
+                #applicant_type = state.get("지원유형")
 
                 prompt = create_intro_prompt(
-                    job=role,
-                    intro=text,
-                    company=company,
-                    applicant_type=applicant_type
+                    state=state,
+                    intro=text
                 )
                 result = call_gpt(prompt)
                 state = update_resume(state, "한줄소개", result)
@@ -30,7 +34,7 @@ def create_intro_tab(state):
 
             convert_btn.click(
                 fn=handle_intro,
-                inputs=[gr.Text(label="직무", visible=False), input_text, state],
+                inputs=[input_text, state],
                 outputs=[output_text, state],
                 show_progress=True
             )

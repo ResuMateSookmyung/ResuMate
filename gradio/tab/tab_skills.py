@@ -12,17 +12,21 @@ def create_skills_tab(state):
                 placeholder="예: Python, SQL, AWS, Docker, Git 등을 활용한 프로젝트 경험 보유"
             )
             output_text = gr.Textbox(label="영문 이력서 문장", lines=3)
+            gr.Textbox(
+                value="ⓘ 생성된 문장은 사용자 입력을 기반으로 하며, 실제 사실과 다를 수 있으며 입력한 정보는 저장되지 않습니다.",
+                label="",
+                lines=1,
+                interactive=False
+            )
             convert_btn = gr.Button("변환")
 
-            def handle_skills(role, text, state):
-                company = state.get("기업")
-                applicant_type = state.get("지원유형")
+            def handle_skills(text, state):
+                #company = state.get("기업")
+                #applicant_type = state.get("지원유형")
 
                 prompt = create_skills_prompt(
-                    job=role,
-                    skills=text,
-                    company=company,
-                    applicant_type=applicant_type
+                    state=state,
+                    skills=text
                 )
                 result = call_gpt(prompt)
                 state = update_resume(state, "기술 스택", result)
@@ -30,7 +34,7 @@ def create_skills_tab(state):
 
             convert_btn.click(
                 fn=handle_skills,
-                inputs=[gr.Text(label="직무", visible=False), input_text, state],
+                inputs=[input_text, state],
                 outputs=[output_text, state],
                 show_progress=True
             )
