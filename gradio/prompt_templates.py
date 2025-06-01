@@ -133,7 +133,9 @@ def create_skills_prompt(state: dict, skills: str) -> str:
     요청:
     - 관련 기술 분류: Programming, Tools, Languages 등
     - 쉼표 또는 리스트로 정리
-    - 입력 내용만을 기준으로 작성 (팁 제안x)
+    - 입력 내용만을 기준으로 작성
+    - 불확실한 부분은 구체화하지 말고 사용자 입력에 기반한 사실만 반영하세요.
+    - 영어 불렛 포인트 형식 외의 텍스트 출력하지 마세요.
     - {style}
 
     예시:
